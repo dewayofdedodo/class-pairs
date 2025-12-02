@@ -4,9 +4,11 @@
   <meta charset="UTF-8" />
   <title>Class pairing</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- PyScript -->
+
+  <!-- ✅ PyScript core files -->
   <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
   <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+
   <style>
     body { font-family: system-ui, Segoe UI, sans-serif; margin: 2rem; }
     .card { max-width: 600px; margin: auto; padding: 1.5rem; border: 1px solid #ddd; border-radius: 12px; }
@@ -43,7 +45,6 @@
 from js import document
 import random
 
-# Edit your names here
 ORIGINAL = [
     'Preme', 'Earn', 'Manie', 'Dou Dou', 'Aarav', 'Caolan', 'Freddie',
     'Lara', 'Pryn', 'James', 'Jack', 'LeLe', 'Bil'
@@ -51,7 +52,7 @@ ORIGINAL = [
 
 namelist = ORIGINAL.copy()
 current = None
-assignments = []  # store tuples like (drawer, assigned_to)
+assignments = []
 
 def render():
     remaining_el = document.getElementById("remaining")
@@ -63,11 +64,9 @@ def render():
     remaining_el.innerText = ", ".join(namelist) if namelist else "No one left."
     current_el.innerText = current if current is not None else "—"
 
-    # Buttons enabled state
     btn_itsme.disabled = current is None
     btn_assign.disabled = current is None
 
-    # Show assignments if any
     if assignments:
         result_el.classList.remove("hidden")
         result_el.innerHTML = "<strong>Assignments:</strong><br>" + "<br>".join(
@@ -88,14 +87,12 @@ def draw_random(exclude=None):
 
 def on_draw(evt=None):
     if not namelist:
-        current_el = document.getElementById("current")
-        current_el.innerText = "—"
+        document.getElementById("current").innerText = "—"
         return
     draw_random()
     render()
 
 def on_its_me(evt=None):
-    # Reroll excluding the current name
     if current is None:
         return
     draw_random(exclude=current)
@@ -105,29 +102,18 @@ def on_assign(evt=None):
     global current
     if current is None:
         return
-    # Assign current and remove from remaining
-    # For demo: pair current with another random person (not self), then remove the assignee
-    # If you prefer: remove 'current' instead — adapt to your classroom rule.
-    # Here we simulate your “if self then reroll, else assign & remove assignee”
     if len(namelist) <= 1:
-        # Last person can't be assigned to someone else
         assignments.append((current, "No one available"))
         namelist.remove(current)
         current = None
         render()
         return
 
-    # Choose partner excluding self
     partner_candidates = [n for n in namelist if n != current]
     partner = random.choice(partner_candidates)
 
-    # Record and remove partner from remaining
     assignments.append((current, partner))
     namelist.remove(partner)
-
-    # Optionally also remove the drawer:
-    # namelist.remove(current)
-
     current = None
     render()
 
@@ -138,13 +124,11 @@ def on_reset(evt=None):
     assignments = []
     render()
 
-# Wire up buttons
 document.getElementById("btn-draw").addEventListener("click", on_draw)
 document.getElementById("btn-itsme").addEventListener("click", on_its_me)
 document.getElementById("btn-assign").addEventListener("click", on_assign)
 document.getElementById("btn-reset").addEventListener("click", on_reset)
 
-# Initial render
 render()
   </py-script>
 </body>
