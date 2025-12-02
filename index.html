@@ -12,7 +12,6 @@
     button { padding: 0.6rem 1rem; margin-right: 0.5rem; }
     .muted { color: #888; font-size: 0.9rem; }
     .list { margin-top: 1rem; font-size: 0.95rem; }
-    .hidden { display: none; }
   </style>
 </head>
 <body>
@@ -31,30 +30,18 @@
 
     <p class="muted">Remaining:</p>
     <div id="remaining" class="list">—</div>
-
-    <hr />
-    <div id="result" class="list hidden"></div>
   </div>
 
-  <!-- ✅ JavaScript logic at the end -->
   <script>
-    const ORIGINAL =  ['Preme','Earn', 'Manie', 'Dou Dou', 'Aarav', 'Caolan', 'Freddie', 'Lara', 'Pryn', 'James', 'Jack', 'LeLe', 'Bible', 'Pim', 'Mc', 'Letty', 'Jazz', 'Pepper', 'Kua', 'Zayaan'];
+    const ORIGINAL = ['Preme','Earn','Manie','Dou Dou','Aarav','Caolan','Freddie','Lara','Pryn','James','Jack','LeLe','Bil'];
     let namelist = [...ORIGINAL];
     let current = null;
-    let assignments = [];
 
     function render() {
       document.getElementById("remaining").innerText = namelist.join(", ") || "No one left.";
       document.getElementById("current").innerText = current || "—";
       document.getElementById("btn-itsme").disabled = !current;
       document.getElementById("btn-assign").disabled = !current;
-      const result = document.getElementById("result");
-      if (assignments.length) {
-        result.classList.remove("hidden");
-        result.innerHTML = "<strong>Assignments:</strong><br>" + assignments.map(a => `${a[0]} → ${a[1]}`).join("<br>");
-      } else {
-        result.classList.add("hidden");
-      }
     }
 
     function draw(exclude=null) {
@@ -69,12 +56,11 @@
       if (!current) return;
       let partnerCandidates = namelist.filter(n => n !== current);
       let partner = partnerCandidates[Math.floor(Math.random()*partnerCandidates.length)];
-      assignments.push([current, partner]);
       namelist = namelist.filter(n => n !== partner);
       current = null;
       render();
     };
-    document.getElementById("btn-reset").onclick = () => { namelist = [...ORIGINAL]; current=null; assignments=[]; render(); };
+    document.getElementById("btn-reset").onclick = () => { namelist = [...ORIGINAL]; current=null; render(); };
 
     render();
   </script>
