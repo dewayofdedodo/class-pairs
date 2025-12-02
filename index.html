@@ -1,135 +1,41 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Class pairing</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+<script>
+const ORIGINAL = ['Preme','Earn','Manie','Dou Dou','Aarav','Caolan','Freddie','Lara','Pryn','James','Jack','LeLe','Bil'];
+let namelist = [...ORIGINAL];
+let current = null;
+let assignments = [];
 
-  <!-- ✅ PyScript core files -->
-  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
-  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+function render() {
+  document.getElementById("remaining").innerText = namelist.join(", ") || "No one left.";
+  document.getElementById("current").innerText = current || "—";
+  document.getElementById("btn-itsme").disabled = !current;
+  document.getElementById("btn-assign").disabled = !current;
+  const result = document.getElementById("result");
+  if (assignments.length) {
+    result.classList.remove("hidden");
+    result.innerHTML = "<strong>Assignments:</strong><br>" + assignments.map(a => `${a[0]} → ${a[1]}`).join("<br>");
+  } else {
+    result.classList.add("hidden");
+  }
+}
 
-  <style>
-    body { font-family: system-ui, Segoe UI, sans-serif; margin: 2rem; }
-    .card { max-width: 600px; margin: auto; padding: 1.5rem; border: 1px solid #ddd; border-radius: 12px; }
-    .name { font-size: 2rem; font-weight: 600; margin: 1rem 0; }
-    .secondary { color: #666; margin-top: 0.25rem; }
-    button { padding: 0.6rem 1rem; margin-right: 0.5rem; }
-    .muted { color: #888; font-size: 0.9rem; }
-    .list { margin-top: 1rem; font-size: 0.95rem; }
-    .hidden { display: none; }
-  </style>
-</head>
-<body>
-  <div class="card">
-    <h1>Class pairing</h1>
-    <p class="secondary">Click “Draw” to pick a random person. If it’s yourself, click “It’s me” to reroll excluding you.</p>
+function draw(exclude=null) {
+  let candidates = namelist.filter(n => n !== exclude);
+  if (!candidates.length) { current = null; return; }
+  current = candidates[Math.floor(Math.random()*candidates.length)];
+}
 
-    <div id="current" class="name">—</div>
+document.getElementById("btn-draw").onclick = () => { draw(); render(); };
+document.getElementById("btn-itsme").onclick = () => { draw(current); render(); };
+document.getElementById("btn-assign").onclick = () => {
+  if (!current) return;
+  let partnerCandidates = namelist.filter(n => n !== current);
+  let partner = partnerCandidates[Math.floor(Math.random()*partnerCandidates.length)];
+  assignments.push([current, partner]);
+  namelist = namelist.filter(n => n !== partner);
+  current = null;
+  render();
+};
+document.getElementById("btn-reset").onclick = () => { namelist = [...ORIGINAL]; current=null; assignments=[]; render(); };
 
-    <div>
-      <button id="btn-draw">Draw</button>
-      <button id="btn-itsme" disabled>It’s me (reroll)</button>
-      <button id="btn-assign" disabled>Assign & remove</button>
-      <button id="btn-reset">Reset</button>
-    </div>
-
-    <p class="muted">Remaining:</p>
-    <div id="remaining" class="list">—</div>
-
-    <hr />
-    <div id="result" class="list hidden"></div>
-  </div>
-
-  <py-script>
-from js import document
-import random
-
-ORIGINAL = [
-    'Preme', 'Earn', 'Manie', 'Dou Dou', 'Aarav', 'Caolan', 'Freddie',
-    'Lara', 'Pryn', 'James', 'Jack', 'LeLe', 'Bil'
-]
-
-namelist = ORIGINAL.copy()
-current = None
-assignments = []
-
-def render():
-    remaining_el = document.getElementById("remaining")
-    current_el = document.getElementById("current")
-    btn_itsme = document.getElementById("btn-itsme")
-    btn_assign = document.getElementById("btn-assign")
-    result_el = document.getElementById("result")
-
-    remaining_el.innerText = ", ".join(namelist) if namelist else "No one left."
-    current_el.innerText = current if current is not None else "—"
-
-    btn_itsme.disabled = current is None
-    btn_assign.disabled = current is None
-
-    if assignments:
-        result_el.classList.remove("hidden")
-        result_el.innerHTML = "<strong>Assignments:</strong><br>" + "<br>".join(
-            [f"{a[0]} → {a[1]}" for a in assignments]
-        )
-    else:
-        result_el.classList.add("hidden")
-
-def draw_random(exclude=None):
-    global current
-    candidates = namelist.copy()
-    if exclude is not None:
-        candidates = [n for n in candidates if n != exclude]
-    if not candidates:
-        current = None
-        return
-    current = random.choice(candidates)
-
-def on_draw(evt=None):
-    if not namelist:
-        document.getElementById("current").innerText = "—"
-        return
-    draw_random()
-    render()
-
-def on_its_me(evt=None):
-    if current is None:
-        return
-    draw_random(exclude=current)
-    render()
-
-def on_assign(evt=None):
-    global current
-    if current is None:
-        return
-    if len(namelist) <= 1:
-        assignments.append((current, "No one available"))
-        namelist.remove(current)
-        current = None
-        render()
-        return
-
-    partner_candidates = [n for n in namelist if n != current]
-    partner = random.choice(partner_candidates)
-
-    assignments.append((current, partner))
-    namelist.remove(partner)
-    current = None
-    render()
-
-def on_reset(evt=None):
-    global namelist, current, assignments
-    namelist = ORIGINAL.copy()
-    current = None
-    assignments = []
-    render()
-
-document.getElementById("btn-draw").addEventListener("click", on_draw)
-document.getElementById("btn-itsme").addEventListener("click", on_its_me)
-document.getElementById("btn-assign").addEventListener("click", on_assign)
-document.getElementById("btn-reset").addEventListener("click", on_reset)
-
-render()
-  </py-script>
-</body>
-</html>
+render();
+</script>
