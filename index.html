@@ -24,7 +24,6 @@
     <div>
       <button id="btn-draw">Draw</button>
       <button id="btn-itsme" disabled>It’s me (reroll)</button>
-      <button id="btn-assign" disabled>Assign & remove</button>
       <button id="btn-reset">Reset</button>
     </div>
 
@@ -40,26 +39,18 @@
     function render() {
       document.getElementById("remaining").innerText = namelist.join(", ") || "No one left.";
       document.getElementById("current").innerText = current || "—";
-      document.getElementById("btn-itsme").disabled = !current;
-      document.getElementById("btn-assign").disabled = !current;
+      document.getElementById("btn-itsme").disabled = !current || namelist.length === 0;
     }
 
     function draw(exclude=null) {
       let candidates = namelist.filter(n => n !== exclude);
       if (!candidates.length) { current = null; return; }
       current = candidates[Math.floor(Math.random()*candidates.length)];
+      namelist = namelist.filter(n => n !== current);
     }
 
     document.getElementById("btn-draw").onclick = () => { draw(); render(); };
     document.getElementById("btn-itsme").onclick = () => { draw(current); render(); };
-    document.getElementById("btn-assign").onclick = () => {
-      if (!current) return;
-      let partnerCandidates = namelist.filter(n => n !== current);
-      let partner = partnerCandidates[Math.floor(Math.random()*partnerCandidates.length)];
-      namelist = namelist.filter(n => n !== partner);
-      current = null;
-      render();
-    };
     document.getElementById("btn-reset").onclick = () => { namelist = [...ORIGINAL]; current=null; render(); };
 
     render();
