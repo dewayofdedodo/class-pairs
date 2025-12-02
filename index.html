@@ -10,7 +10,6 @@
     .name { font-size: 2.5rem; font-weight: 700; margin: 2rem 0; }
     .secondary { color: #666; margin-bottom: 1rem; }
     button { padding: 0.8rem 1.2rem; margin: 0.5rem; font-size: 1rem; }
-    .muted { color: #888; font-size: 0.9rem; margin-top: 1rem; }
   </style>
 </head>
 <body>
@@ -25,18 +24,17 @@
       <button id="btn-ok" disabled>OK</button>
       <button id="btn-reset">Reset</button>
     </div>
-
-    <p class="muted">Remaining:</p>
-    <div id="remaining">—</div>
   </div>
 
   <script>
-    const ORIGINAL = ['Preme','Earn','Manie','Dou Dou','Aarav','Caolan','Freddie','Lara','Pryn','James','Jack','LeLe','Bil'];
+    const ORIGINAL = [
+      'Preme','Earn','Manie','Dou Dou','Aarav','Caolan','Freddie','Lara','Pryn',
+      'James','Jack','LeLe','Bible','Pim','Mc','Letty','Jazz','Pepper','Kua','Zayaan'
+    ];
     let namelist = [...ORIGINAL];
     let current = null;
 
     function render() {
-      document.getElementById("remaining").innerText = namelist.join(", ") || "No one left.";
       document.getElementById("current").innerText = current || "—";
       document.getElementById("btn-ok").disabled = !current;
     }
