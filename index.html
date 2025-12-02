@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Class pairing</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- PyScript -->
+  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+  <style>
+    body { font-family: system-ui, Segoe UI, sans-serif; margin: 2rem; }
+    .card { max-width: 600px; margin: auto; padding: 1.5rem; border: 1px solid #ddd; border-radius: 12px; }
+    .name { font-size: 2rem; font-weight: 600; margin: 1rem 0; }
+    .secondary { color: #666; margin-top: 0.25rem; }
+    button { padding: 0.6rem 1rem; margin-right: 0.5rem; }
+    .muted { color: #888; font-size: 0.9rem; }
+    .list { margin-top: 1rem; font-size: 0.95rem; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Class pairing</h1>
+    <p class="secondary">Click “Draw” to pick a random person. If it’s yourself, click “It’s me” to reroll excluding you.</p>
+
+    <div id="current" class="name">—</div>
+
+    <div>
+      <button id="btn-draw">Draw</button>
+      <button id="btn-itsme" disabled>It’s me (reroll)</button>
+      <button id="btn-assign" disabled>Assign & remove</button>
+      <button id="btn-reset">Reset</button>
+    </div>
+
+    <p class="muted">Remaining:</p>
+    <div id="remaining" class="list">—</div>
+
+    <hr />
+    <div id="result" class="list hidden"></div>
+  </div>
+
+  <py-script>
+from js import document
+import random
+
+# Edit your names here
+ORIGINAL = [
+    'Preme', 'Earn', 'Manie', 'Dou Dou', 'Aarav', 'Caolan', 'Freddie',
+    'Lara', 'Pryn', 'James', 'Jack', 'LeLe', 'Bil'
+]
+
+namelist = ORIGINAL.copy()
+current = None
+assignments = []  # store tuples like (drawer, assigned_to)
+
+def render():
+    remaining_el = document.getElementById("remaining")
+    current_el = document.getElementById("current")
+    btn_itsme = document.getElementById("btn-itsme")
+    btn_assign = document.getElementById("btn-assign")
+    result_el = document.getElementById("result")
+
+    remaining_el.innerText = ", ".join(namelist) if namelist else "No one left."
+    current_el.innerText = current if current is not None else "—"
+
+    # Buttons enabled state
+    btn_itsme.disabled = current is None
+    btn_assign.disabled = current is None
+
+    # Show assignments if any
+    if assignments:
+        result_el.classList.remove("hidden")
+        result_el.innerHTML = "<strong>Assignments:</strong><br>" + "<br>".join(
+            [f"{a[0]} → {a[1]}" for a in assignments]
+        )
+    else:
+        result_el.classList.add("hidden")
+
+def draw_random(exclude=None):
+    global current
+    candidates = namelist.copy()
+    if exclude is not None:
+        candidates = [n for n in candidates if n != exclude]
+    if not candidates:
+        current = None
+        return
+    current = random.choice(candidates)
+
+def on_draw(evt=None):
+    if not namelist:
+        current_el = document.getElementById("current")
+        current_el.innerText = "—"
+        return
+    draw_random()
+    render()
+
+def on_its_me(evt=None):
+    # Reroll excluding the current name
+    if current is None:
+        return
+    draw_random(exclude=current)
+    render()
+
+def on_assign(evt=None):
+    global current
+    if current is None:
+        return
+    # Assign current and remove from remaining
+    # For demo: pair current with another random person (not self), then remove the assignee
+    # If you prefer: remove 'current' instead — adapt to your classroom rule.
+    # Here we simulate your “if self then reroll, else assign & remove assignee”
+    if len(namelist) <= 1:
+        # Last person can't be assigned to someone else
+        assignments.append((current, "No one available"))
+        namelist.remove(current)
+        current = None
+        render()
+        return
+
+    # Choose partner excluding self
+    partner_candidates = [n for n in namelist if n != current]
+    partner = random.choice(partner_candidates)
+
+    # Record and remove partner from remaining
+    assignments.append((current, partner))
+    namelist.remove(partner)
+
+    # Optionally also remove the drawer:
+    # namelist.remove(current)
+
+    current = None
+    render()
+
+def on_reset(evt=None):
+    global namelist, current, assignments
+    namelist = ORIGINAL.copy()
+    current = None
+    assignments = []
+    render()
+
+# Wire up buttons
+document.getElementById("btn-draw").addEventListener("click", on_draw)
+document.getElementById("btn-itsme").addEventListener("click", on_its_me)
+document.getElementById("btn-assign").addEventListener("click", on_assign)
+document.getElementById("btn-reset").addEventListener("click", on_reset)
+
+# Initial render
+render()
+  </py-script>
+</body>
+</html>
