@@ -2,33 +2,32 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Class Pairing</title>
+  <title>Class Draw</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     body { font-family: system-ui, Segoe UI, sans-serif; margin: 2rem; }
-    .card { max-width: 600px; margin: auto; padding: 1.5rem; border: 1px solid #ddd; border-radius: 12px; }
-    .name { font-size: 2rem; font-weight: 600; margin: 1rem 0; }
-    .secondary { color: #666; margin-top: 0.25rem; }
-    button { padding: 0.6rem 1rem; margin-right: 0.5rem; }
-    .muted { color: #888; font-size: 0.9rem; }
-    .list { margin-top: 1rem; font-size: 0.95rem; }
+    .card { max-width: 600px; margin: auto; padding: 1.5rem; border: 1px solid #ddd; border-radius: 12px; text-align: center; }
+    .name { font-size: 2.5rem; font-weight: 700; margin: 2rem 0; }
+    .secondary { color: #666; margin-bottom: 1rem; }
+    button { padding: 0.8rem 1.2rem; margin: 0.5rem; font-size: 1rem; }
+    .muted { color: #888; font-size: 0.9rem; margin-top: 1rem; }
   </style>
 </head>
 <body>
   <div class="card">
-    <h1>Class pairing</h1>
-    <p class="secondary">Click “Draw” to pick a random person. If it’s yourself, click “It’s me” to reroll excluding you.</p>
+    <h1>Class Draw</h1>
+    <p class="secondary">Click “Draw” to get a random name. Click “OK” to hide it and remove it from the list.</p>
 
     <div id="current" class="name">—</div>
 
     <div>
       <button id="btn-draw">Draw</button>
-      <button id="btn-itsme" disabled>It’s me (reroll)</button>
+      <button id="btn-ok" disabled>OK</button>
       <button id="btn-reset">Reset</button>
     </div>
 
     <p class="muted">Remaining:</p>
-    <div id="remaining" class="list">—</div>
+    <div id="remaining">—</div>
   </div>
 
   <script>
@@ -39,19 +38,36 @@
     function render() {
       document.getElementById("remaining").innerText = namelist.join(", ") || "No one left.";
       document.getElementById("current").innerText = current || "—";
-      document.getElementById("btn-itsme").disabled = !current || namelist.length === 0;
+      document.getElementById("btn-ok").disabled = !current;
     }
 
-    function draw(exclude=null) {
-      let candidates = namelist.filter(n => n !== exclude);
-      if (!candidates.length) { current = null; return; }
-      current = candidates[Math.floor(Math.random()*candidates.length)];
-      namelist = namelist.filter(n => n !== current);
+    function draw() {
+      if (!namelist.length) {
+        current = null;
+        return;
+      }
+      const index = Math.floor(Math.random() * namelist.length);
+      current = namelist[index];
     }
 
-    document.getElementById("btn-draw").onclick = () => { draw(); render(); };
-    document.getElementById("btn-itsme").onclick = () => { draw(current); render(); };
-    document.getElementById("btn-reset").onclick = () => { namelist = [...ORIGINAL]; current=null; render(); };
+    document.getElementById("btn-draw").onclick = () => {
+      draw();
+      render();
+    };
+
+    document.getElementById("btn-ok").onclick = () => {
+      if (current) {
+        namelist = namelist.filter(n => n !== current);
+        current = null;
+        render();
+      }
+    };
+
+    document.getElementById("btn-reset").onclick = () => {
+      namelist = [...ORIGINAL];
+      current = null;
+      render();
+    };
 
     render();
   </script>
